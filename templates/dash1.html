@@ -1,0 +1,307 @@
+{% include 'chat_widget.html' %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sponsor Dashboard</title>
+  <style>
+    :root {
+      --bg-color: #eef3f7;
+      --header-bg: #2c3e50;
+      --nav-bg: #ffffff;
+      --primary-color: #3498db;
+      --success-color: #2ecc71;
+      --danger-color: #e74c3c;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: var(--bg-color);
+      background: url('cp-bg.jpg') center center / cover no-repeat;
+    }
+
+    header {
+      background-color:transparent;
+      color: #000000;
+      padding: 15px 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-bottom: 5%;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 24px;
+    }
+
+    nav {
+      background-color: transparent;
+    }
+
+    nav ul {
+            list-style: none;
+            display: flex;
+            gap: 20px;
+            padding: 0;
+            margin: 0;
+        }
+
+        nav ul li a {
+            color: #000;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 6px 12px;
+            border-radius: 10px;
+            transition: all 0.2s ease-in-out;
+        }
+
+
+        nav ul li a:hover{
+            background-color: #3d9bcaab;
+            color: white;
+            transform: scale(1.05);
+            box-shadow: 0 5px 12px rgba(0, 0, 0, 0.15);
+        }
+
+    .container {
+      padding: 30px;
+      max-width: 1100px;
+      margin: 30px auto;
+      background-color: #ffffff5a;
+      border-radius: 10px;
+      border:0.2px solid black;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    h2, h3 {
+      margin-top: 0;
+      color: #2c3e50;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 25px;
+    }
+
+    th, td {
+      border: 1px solid #000000;
+      padding: 12px 14px;
+      text-align: left;
+    }
+
+    th {
+      background-color: #31587fc0;
+    }
+
+    .btn-view,
+    .btn-accept,
+    .btn-reject {
+      padding: 6px 12px;
+      border: none;
+      border-radius: 5px;
+      font-size: 14px;
+      color: white;
+      cursor: pointer;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+      text-decoration: none;
+      margin-right: 5px;
+      display: inline-block;
+    }
+
+    .btn-view {
+      background-color: var(--primary-color);
+    }
+
+    .btn-accept {
+      background-color: var(--success-color);
+    }
+
+    .btn-reject {
+      background-color: var(--danger-color);
+    }
+
+    .btn-view:hover {
+      background-color: #2980b9;
+      transform: translateY(-1px);
+    }
+
+    .btn-accept:hover {
+      background-color: #27ae60;
+      transform: translateY(-1px);
+    }
+
+    .btn-reject:hover {
+      background-color: #c0392b;
+      transform: translateY(-1px);
+    }
+
+    .dialog-box {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: #fff;
+      padding: 25px;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+      z-index: 1000;
+      width: 50%;
+      max-width: 600px;
+      border-radius: 8px;
+      overflow-y: auto;
+    }
+
+    .dialog-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 999;
+    }
+
+    .dialog-box button {
+      background-color: #7f8c8d;
+      color: white;
+      padding: 8px 14px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .dialog-box button:hover {
+      background-color: #626e70;
+    }
+
+    @media (max-width: 768px) {
+      header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      nav ul {
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .container {
+        padding: 20px;
+      }
+
+      .dialog-box {
+        width: 90%;
+      }
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+</head>
+<body>
+  <div id="app">
+    <header>
+      <h1>[[ title ]]</h1>
+      <nav>
+        <ul>
+          <li><a href="#">Profile</a></li>
+          <li><a href="{{ url_for('find1') }}">Find influencers</a></li>
+          <li><a href="{{ url_for('campaigns') }}">Campaigns</a></li>
+          <li><a href="{{ url_for('status1') }}">Status</a></li>
+          <li><a href="{{ url_for('logout') }}">Logout</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <form action="{{ url_for('dash1') }}" method="post" autocomplete="off">
+      <div class="container" id="profile">
+        <h2 style="background-color: #000; color: white; border: none;">[[ profileTitle ]]</h2>
+        <h3>[[ campaignsRegisteredTitle ]]</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Campaign Name</th>
+              <th>Influencer</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for c in register %}
+            <tr>
+              <td>{{ c.campaign }}</td>
+              <td>{{ c.influencer }}</td>
+              <td>Active</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+
+        <h3 style="background-color: #000; color: white; border: none;">[[ newCampaignRequestsTitle ]]</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Campaign Name</th>
+              <th>Influencer</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for c in new_campaigns %}
+            <tr>
+              <td>{{ c.campaign }}</td>
+              <td>{{ c.influencer }}</td>
+              <td>
+                <a href="#" @click="viewInfluencer('{{ c.influencer }}', '{{ c.followers }}')" class="btn-view">View</a>
+                <a href="{{ url_for('accept_influencer', campaign_id=c.campaign) }}" class="btn-accept">Accept</a>
+                <a href="{{ url_for('reject_influencer', campaign_id=c.campaign) }}" class="btn-reject">Reject</a>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </form>
+
+    <div class="dialog-overlay" id="dialog-overlay"></div>
+    <div class="dialog-box" id="dialog-box">
+      <h3>Influencer Details</h3>
+      <p id="dialog-influencer">[[ dialogInfluencer ]]</p>
+      <p id="dialog-followers">[[ dialogFollowers ]]</p>
+      <button type="button" @click="closeDialog">Close</button>
+    </div>
+  </div>
+
+  <script>
+    new Vue({
+      el: '#app',
+      delimiters: ['[[', ']]'],
+      data: {
+        title: 'Sponsor Dashboard',
+        profileTitle: 'Profile',
+        campaignsRegisteredTitle: 'Campaigns Registered',
+        newCampaignRequestsTitle: 'New Campaign Requests',
+        dialogInfluencer: '',
+        dialogFollowers: '',
+      },
+      methods: {
+        viewInfluencer(influencer, followers) {
+          this.dialogInfluencer = 'Influencer: ' + influencer;
+          this.dialogFollowers = 'Followers: ' + followers;
+          document.getElementById('dialog-overlay').style.display = 'block';
+          document.getElementById('dialog-box').style.display = 'block';
+        },
+        closeDialog() {
+          document.getElementById('dialog-overlay').style.display = 'none';
+          document.getElementById('dialog-box').style.display = 'none';
+        }
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,53 @@
+<!-- templates/chat_widget.html -->
+<div id="chat-icon" onclick="toggleChat()"
+     style="position:fixed; bottom:20px; right:20px;
+            background:#007BFF; color:white;
+            padding:12px; border-radius:50%; cursor:pointer;
+            font-size:24px; z-index:1000;">💬
+</div>
+<div id="chat-box" style="display:none; flex-direction:column;
+            position:fixed; bottom:80px; right:20px;
+            width:320px; max-height:400px;
+            background:white; border:1px solid #ccc;
+            box-shadow:0 0 12px rgba(0,0,0,0.2);
+            z-index:1000; border-radius:8px; overflow:hidden;">
+  <div id="chat-log" style="flex:1; padding:8px; overflow-y:auto; font-size:14px;"></div>
+  <div style="display:flex; border-top:1px solid #eee;">
+    <input id="chat-input" style="flex:1; border:none; padding:8px; font-size:14px;"
+           placeholder="Ask me…" onkeypress="if(event.key==='Enter') sendMessage()"/>
+    <button style="border:none; background:#007BFF; color:white;
+                   padding:0 16px; cursor:pointer;"
+            onclick="sendMessage()">Send</button>
+  </div>
+</div>
+
+<script>
+  function toggleChat() {
+    const box = document.getElementById('chat-box');
+    box.style.display = (box.style.display === 'flex') ? 'none' : 'flex';
+  }
+
+  async function sendMessage() {
+    const input = document.getElementById('chat-input');
+    const text = input.value.trim();
+    if (!text) return;
+    const log = document.getElementById('chat-log');
+
+    log.innerHTML += `<div><strong>You:</strong> ${text}</div>`;
+    log.scrollTop = log.scrollHeight;
+    input.value = '';
+
+    try {
+      const res = await fetch('/chatbot', {
+        method: 'POST',
+        headers:{ 'Content-Type':'application/json' },
+        body: JSON.stringify({ message: text })
+      });
+      const { response } = await res.json();
+      log.innerHTML += `<div><strong>Bot:</strong> ${response}</div>`;
+    } catch (err) {
+      log.innerHTML += `<div><strong>Bot:</strong> Error occurred.</div>`;
+    }
+    log.scrollTop = log.scrollHeight;
+  }
+</script>

@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Campaign</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background-color: #333;
+            color: #fff;
+            padding: 10px 20px;
+        }
+        nav {
+            background-color: #f4f4f4;
+            padding: 10px;
+        }
+        nav ul {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+        }
+        nav ul li {
+            display: inline;
+            margin-right: 10px;
+        }
+        .container {
+            padding: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.4);
+        }
+        .modal-content {
+            background-color: #fff;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 500px;
+        }
+        table {
+            width:55%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Sponsor Dashboard</h1>
+    </header>
+    <nav>
+        <ul>
+            <li><a href="{{url_for('dash1')}}">Profile</a></li>
+            <li><a href="{{url_for('find1')}}">Find influencers</a></li>
+            <li><a>Campaigns</a></li>
+            <li><a href="{{url_for('status1')}}">Status</a></li>
+            <li><a href="{{url_for('logout')}}">Logout</a></li>
+        </ul>
+    </nav>
+
+    <h3>Campaigns Registered</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Campaign Name</th>
+                <th>Budget</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for c in campaigns %}
+            <tr>
+                <td>{{ c.name }}</td>
+                <td>{{ c.budget }}</td>
+                <td>
+                    <button class="btn btn-warning btn-sm" onclick="editCampaign('{{ c.name }}', '{{ c.budget }}')">Edit</button>
+                    <a href="{{url_for('delete_campaign',campaign=c.name)}}" class="btn btn-danger btn-sm">Delete</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="container">
+        <button id="createCampaignBtn">Add Campaign</button>
+    </div>
+
+    <!-- Add Campaign Modal -->
+    <div id="campaignModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>New Campaign</h2>
+            <form action="{{ url_for('save_campaign')}}" method="post">
+                <label for="campaignName">Campaign Name:</label>
+                <input type="text" id="campaignName" name="campaignName" required><br><br>
+                <label for="description">Description:</label>
+                <textarea id="description" name="description" required></textarea><br><br>
+                <label for="date">Date:</label>
+                <input type="date" id="date" name="date" required><br><br>
+                <label for="budget">Budget:</label>
+                <input type="number" id="budget" name="budget" required><br><br>
+                <input type="submit" value="Save">
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Campaign Modal -->
+    <div id="editCampaignModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeEditModal()">&times;</span>
+            <h2>Edit Campaign</h2>
+            <form id="editCampaignForm" action="{{ url_for('edit_campaign') }}" method="post">
+                <input type="hidden" id="editCampaignName" name="campaignName">
+                <label for="editCampaignNameInput">Campaign Name:</label>
+                <input type="text" id="editCampaignNameInput" name="newCampaignName" required><br><br>
+                <label for="editBudget">Budget:</label>
+                <input type="number" id="editBudget" name="budget" required><br><br>
+                <input type="submit" value="Save Changes">
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Sponsor Modal -->
+    <div id="editSponsorModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeEditSponsorModal()">&times;</span>
+            <h2>Edit Sponsor</h2>
+            <form id="editSponsorForm" action="{{ url_for('edit_sponsor') }}" method="post">
+                <input type="hidden" id="editSponsorName" name="sponsorName">
+                <label for="editSponsorNewName">New Name:</label>
+                <input type="text" id="editSponsorNewName" name="newName" required><br><br>
+                <input type="submit" value="Save Changes">
+            </form>
+        </div>
+    </div>
+
+    <script>
+        var campaignModal = document.getElementById("campaignModal");
+        var editCampaignModal = document.getElementById("editCampaignModal");
+        var editSponsorModal = document.getElementById("editSponsorModal");
+        var createBtn = document.getElementById("createCampaignBtn");
+        var closeBtns = document.getElementsByClassName("close");
+
+        createBtn.onclick = function() {
+            campaignModal.style.display = "block";
+        }
+
+        function editCampaign(name, budget) {
+            document.getElementById("editCampaignNameInput").value = name;
+            document.getElementById("editCampaignName").value = name;
+            document.getElementById("editBudget").value = budget;
+            editCampaignModal.style.display = "block";
+        }
+
+        function closeEditModal() {
+            editCampaignModal.style.display = "none";
+        }
+
+        function editSponsor(name) {
+            document.getElementById("editSponsorName").value = name;
+            editSponsorModal.style.display = "block";
+        }
+
+        function closeEditSponsorModal() {
+            editSponsorModal.style.display = "none";
+        }
+
+        Array.from(closeBtns).forEach(btn => {
+            btn.onclick = function() {
+                campaignModal.style.display = "none";
+                editCampaignModal.style.display = "none";
+                editSponsorModal.style.display = "none";
+            }
+        });
+
+        window.onclick = function(event) {
+            if (event.target == campaignModal || event.target == editCampaignModal || event.target == editSponsorModal) {
+                campaignModal.style.display = "none";
+                editCampaignModal.style.display = "none";
+                editSponsorModal.style.display = "none";
+            }
+        }
+    </script>
+</body>
+</html>

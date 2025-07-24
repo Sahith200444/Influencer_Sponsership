@@ -1,0 +1,294 @@
+{% include 'chat_widget.html' %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Influencer Dashboard</title>
+  <style>
+    :root {
+      --light-gray: #f0f2f5;
+      --dark-gray: #343a40;
+      --medium-gray: #6c757d;
+      --border-color: #dee2e6;
+      --table-header-bg: #e9ecef;
+      --primary-color:blue;
+      --hover-color:rgb(67, 202, 161);
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: var(--light-gray);
+      color: #333;
+      background: url('Inf-bg.jpg') center center / cover no-repeat;
+    }
+
+    header {
+      background-color:transparent;
+      color: #070707;
+      padding: 15px 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-bottom: 5%;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 24px;
+    }
+
+    nav ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      gap: 35px;
+    }
+
+    nav ul li a {
+      color: #080808;
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.3s ease;
+    }
+
+    nav ul li a:hover { 
+        transition: all 0.2s ease-in-out;
+        font-weight: 500;
+      padding: 6px 12px;
+      border-radius: 10px;      
+      color: #ffffff;
+      background-color: #00bbff58;
+    }
+
+    .container {
+      padding: 30px;
+      max-width: 1200px;
+      margin: 30px auto;
+      background-color: #ffffffa0;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+      border-radius: 10px;
+      border: 0.2px solid rgba(0, 0, 0, 0.304);
+    }
+
+    h2, h3 {
+      margin-top: 0;
+      color: #212529;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 30px;
+      border: 1px solid var(--border-color);
+      background-color: #fff;
+    }
+
+    table th, table td {
+      border: 1px solid var(--border-color);
+      padding: 12px 15px;
+      text-align: left;
+    }
+
+    table th{
+      background-color: var(--table-header-bg);
+      color: #000000f3;
+      font-weight: 600;
+      border: 1px solid black;
+    }
+
+    table tr:nth-child(even) {
+      background-color: #f8f9fa;
+    }
+
+    button,
+    a.button-link {
+      background-color: var(--primary-color);
+      border: none;
+      color: white;
+      padding: 6px 12px;
+      margin-right: 5px;
+      font-size: 14px;
+      border-radius: 4px;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      display: inline-block;
+    }
+
+    button:hover,
+    a.button-link:hover {
+      background-color: var(--hover-color);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .dialog-box {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: #fff;
+      padding: 25px;
+      box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.15);
+      z-index: 1000;
+      width: 50%;
+      max-width: 600px;
+      border-radius: 8px;
+      overflow-y: auto;
+    }
+
+    .dialog-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 999;
+    }
+
+    .dialog-box h3 {
+      margin-top: 0;
+      color: var(--primary-color);
+    }
+
+    .dialog-box button {
+      background-color: var(--medium-gray);
+    }
+
+    .dialog-box button:hover {
+      background-color: #5a6268;
+    }
+
+    @media (max-width: 768px) {
+      nav ul {
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .container {
+        padding: 20px;
+      }
+
+      .dialog-box {
+        width: 90%;
+        height: auto;
+      }
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+</head>
+<body>
+  <div id="app">
+    <header>
+      <h1>[[ title ]]</h1>
+      <nav>
+        <ul>
+          <li><a href="#">Profile</a></li>
+          <li><a href="{{ url_for('find') }}">Find Campaigns</a></li>
+          <li><a href="{{ url_for('status') }}">Status</a></li>
+          <li><a href="{{ url_for('logout') }}">Logout</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <form action="{{ url_for('dash') }}" method="post" autocomplete="off">
+      <div class="container" id="profile">
+        <h2 style="background-color: #070707c7; color: white;">[[ profileTitle ]]</h2>
+
+        <h3>[[ campaignsRegisteredTitle ]]</h3>
+        <table>
+          <thead sty>
+            <tr>
+              <th>Campaign Name</th>
+              <th>Company</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for r in rcampaigns %}
+            <tr>
+              <td>{{ r.campaign }}</td>
+              <td>{{ r.cname }}</td>
+              <td>Active</td>
+              <td>
+                <button type="button" onclick="viewCampaign('{{ r.cname }}', '{{ r.desp }}', '{{ r.budget }}', '{{ r.date }}')">View</button>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+
+        <h3 style="background-color: #070707c7; color: white;">[[ newCampaignRequestsTitle ]]</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Company Name</th>
+              <th>Campaign Name</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for c in campaigns %}
+            <tr>
+              <td>{{ c.cname }}</td>
+              <td>{{ c.campaign }}</td>
+              <td>
+                <button type="button" onclick="viewCampaign('{{ c.cname }}', '{{ c.desp }}', '{{ c.budget }}', '{{ c.date }}')">View</button>
+                <a href="{{ url_for('accept_campaign', campaign_id=c.campaign) }}" class="button-link">Accept</a>
+                <a href="{{ url_for('reject_campaign', campaign_id=c.campaign) }}" class="button-link">Reject</a>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </form>
+
+    <div class="dialog-overlay" id="dialog-overlay"></div>
+    <div class="dialog-box" id="dialog-box">
+      <h3 id="dialog-company"></h3>
+      <p id="dialog-description"></p>
+      <p id="dialog-budget"></p>
+      <p id="dialog-date"></p>
+      <button type="button" onclick="closeDialog()">Close</button>
+    </div>
+  </div>
+
+  <script>
+    function viewCampaign(company, description, budget, date) {
+      document.getElementById('dialog-company').innerText = company;
+      document.getElementById('dialog-description').innerText = description;
+      document.getElementById('dialog-budget').innerText = 'Budget: ' + budget;
+      document.getElementById('dialog-date').innerText = 'Date: ' + date;
+
+      document.getElementById('dialog-overlay').style.display = 'block';
+      document.getElementById('dialog-box').style.display = 'block';
+    }
+
+    function closeDialog() {
+      document.getElementById('dialog-overlay').style.display = 'none';
+      document.getElementById('dialog-box').style.display = 'none';
+    }
+
+    new Vue({
+      el: '#app',
+      delimiters: ['[[', ']]'],
+      data: {
+        title: 'Influencer Dashboard',
+        profileTitle: 'Profile',
+        campaignsRegisteredTitle: 'Campaigns Registered',
+        newCampaignRequestsTitle: 'New Campaign Requests',
+      }
+    });
+  </script>
+</body>
+</html>

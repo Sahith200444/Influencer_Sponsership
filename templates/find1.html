@@ -1,0 +1,254 @@
+{% include 'chat_widget.html' %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sponsor Dashboard</title>
+    <style>
+    :root {
+        --bg-color: #eef3f7;
+        --header-bg: #2c3e50;
+        --nav-bg: #ffffff;
+        --primary-color: #3498db;
+        --success-color: #2ecc71;
+        --danger-color: #e74c3c;
+    }
+
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: var(--bg-color);
+        background: url('cp-bg.jpg') center center / cover no-repeat;
+    }
+
+    /* Header */
+    header {
+        background-color: transparent;
+        color: #000;
+        padding: 15px 30px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+    header h1 {
+        font-size: 24px;
+        margin: 0;
+    }
+
+    /* Navigation */
+    nav {
+        background-color: transparent;
+    }
+
+    nav ul {
+        list-style: none;
+        display: flex;
+        gap: 20px;
+        padding: 0;
+        margin: 0;
+    }
+
+    nav ul li {
+        margin: 0;
+    }
+
+    nav ul li a {
+        color: #000;
+        text-decoration: none;
+        font-weight: 500;
+        padding: 6px 12px;
+        border-radius: 10px;
+        transition: all 0.2s ease-in-out;
+    }
+
+    nav ul li a:hover {
+        background-color: #3d9bcaab;
+        color: white;
+        transform: scale(1.05);
+        box-shadow: 0 5px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    /* Container */
+    .container {
+        padding: 30px;
+        max-width: 1100px;
+        margin: 30px auto;
+        background-color: #ffffff5a;
+        border-radius: 10px;
+        border: 0.2px solid black;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Headings */
+    h2 {
+        background-color: #000000cc;
+        color: white;
+        padding: 10px;
+        border-radius: 6px;
+        margin-top: 0;
+    }
+
+    h3 {
+        color: #2c3e50;
+        margin-top: 20px;
+    }
+
+    /* Tables */
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 25px;
+    }
+
+    th, td {
+        border: 1px solid #000000;
+        padding: 12px 14px;
+        text-align: left;
+    }
+
+    th {
+        background-color: #31587fa4;
+        color: rgb(8, 8, 8);
+    }
+
+    /* Buttons */
+    button {
+        padding: 6px 12px;
+        border: none;
+        border-radius: 5px;
+        font-size: 14px;
+        color: white;
+        cursor: pointer;
+        transition: background-color 0.3s ease, transform 0.2s ease;
+        margin-right: 5px;
+    }
+
+    button[type="submit"] {
+        background-color: var(--success-color);
+    }
+
+    button[type="submit"]:hover {
+        background-color: #27ae60;
+        transform: translateY(-1px);
+    }
+
+    button:not([type="submit"]) {
+        background-color: var(--primary-color);
+    }
+
+    button:not([type="submit"]):hover {
+        background-color: #2980b9;
+        transform: translateY(-1px);
+    }
+
+    /* Search Bar */
+    .search-bar {
+        margin-bottom: 20px;
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        max-width: 600px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .search-bar input {
+        padding: 10px 16px;
+        width: 100%;
+        max-width: 400px;
+        font-size: 15px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        nav ul {
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .container {
+            padding: 20px;
+        }
+    }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Sponsor Dashboard</h1>
+        <nav>
+            <ul>
+                <li><a href="{{url_for('dash1')}}">Profile</a></li>
+                <li><a>Find influencers</a></li>
+                <li><a href="{{url_for('campaigns')}}">Campaigns</a></li>
+                <li><a href="{{url_for('status1')}}">Status</a></li>
+                <li><a href="{{url_for('logout')}}">Logout</a></li>
+            </ul>
+        </nav>
+    </header>
+    
+    <div class="container" id="find-campaigns">
+        <h2>Find Influencers</h2>
+        <div class="search-bar">
+            <input type="text" id="searchInput" onkeyup="searchInfluencers()" placeholder="Search for influencers...">
+        </div>
+        <h3>New Influencers</h3>
+        <table id="influencersTable">
+            <thead>
+                <tr>
+                    <th>Influencer Name</th>
+                    <th>No. of Followers</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for i in influencers %}
+                <tr>
+                    <td>{{i.username}}</td>
+                    <td>{{i.value}}</td>
+                    <td>
+                        <form action="{{url_for('Request_influencer')}}" method="post">
+                            <input type="hidden" name="influencer" value="{{i.username}}">
+                            <button type="submit">Request</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        function searchInfluencers() {
+            var input, filter, table, tr, td, i, txtValue;
+            input = document.getElementById("searchInput");
+            filter = input.value.toLowerCase();
+            table = document.getElementById("influencersTable");
+            tr = table.getElementsByTagName("tr");
+
+            for (i = 1; i < tr.length; i++) {
+                td = tr[i].getElementsByTagName("td")[0];
+                if (td) {
+                    txtValue = td.textContent || td.innerText;
+                    if (txtValue.toLowerCase().indexOf(filter) > -1) {
+                        tr[i].style.display = "";
+                    } else {
+                        tr[i].style.display = "none";
+                    }
+                }
+            }
+        }
+    </script>
+</body>
+</html>

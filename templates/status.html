@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Influencer Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            color: black;
+            background: url('inf-bg.jpg') center center / cover no-repeat;
+            width: 100%;
+            height: 100vh;
+        }
+
+        header {
+            background-color: transparent;
+            color: #000000;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+
+        nav {
+            background-color: transparent;
+        }
+
+        nav ul {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            gap: 20px;
+        }
+
+        nav ul li {
+            display: inline;
+        }
+
+        nav ul li a {
+            color: #000000;
+            text-decoration: none;
+            padding: 6px 12px;
+            border-radius: 5px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        nav ul li a:hover {
+            background-color: #3d9bca;
+            color: white;
+        }
+
+        .container {
+            padding: 20px;
+        }
+
+        h2 {
+            margin-top: 0;
+        }
+
+        .chart-container {
+            width: 25%;
+            margin: 20px auto;
+        }
+
+        .chart-wrapper {
+            margin-bottom: 40px;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <header>
+        <h1>Influencer Dashboard</h1>
+        <nav>
+            <ul>
+                <li><a href="{{url_for('dash')}}">Profile</a></li>
+                <li><a href="{{url_for('find')}}">Find Campaigns</a></li>
+                <li><a>Status</a></li>
+                <li><a href="{{url_for('logout')}}">Logout</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="container" id="status">
+        <h2>Status</h2>
+        {% for campaign in campaigns %}
+        <div class="chart-wrapper">
+            <h3>{{ campaign.name }}</h3>
+            <div class="chart-container">
+                <canvas id="campaignPieChart_{{ loop.index }}"></canvas>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const campaignData = {{ campaigns | tojson }};
+            campaignData.forEach((campaign, index) => {
+                const ctx = document.getElementById(`campaignPieChart_${index + 1}`).getContext('2d');
+                new Chart(ctx, {
+                    type: 'pie',
+                    data: {
+                        labels: ['Completed', 'Incomplete'],
+                        datasets: [{
+                            label: 'Campaign Progress',
+                            data: [campaign.completed, campaign.incomplete],
+                            backgroundColor: ['#4caf50', '#f44336']
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                            },
+                            title: {
+                                display: true,
+                                text: 'Campaign Progress'
+                            }
+                        }
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

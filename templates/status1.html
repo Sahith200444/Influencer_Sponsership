@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sponsor Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background-color: transparent;
+            color: #040404;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: url('ad-bg.jpg') center center / cover no-repeat;
+            height: 100vh;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+
+        nav {
+            background-color: transparent;
+        }
+
+        nav ul {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            gap: 20px;
+        }
+
+        nav ul li {
+            display: inline;
+        }
+
+        nav ul li a {
+            color: #000000;
+            text-decoration: none;
+            padding: 6px 12px;
+            border-radius: 5px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        nav ul li a:hover {
+            background-color: #3d9bca;
+            color: white;
+        }
+
+        .container {
+            padding: 20px;
+        }
+
+        h2 {
+            margin-top: 0;
+        }
+
+        .chart-container {
+            width: 30%;
+            margin: 0 auto;
+            margin-bottom: 20px;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <header>
+        <h1>Sponsor Dashboard</h1>
+        <nav>
+            <ul>
+                <li><a href="{{ url_for('dash1') }}">Profile</a></li>
+                <li><a href="{{ url_for('find1') }}">Find Campaigns</a></li>
+                <li><a href="{{ url_for('campaigns') }}">Campaigns</a></li>
+                <li><a>Status</a></li>
+                <li><a href="{{ url_for('logout') }}">Logout</a></li>
+            </ul>
+        </nav>
+    </header>
+    
+
+    <div class="container" id="status">
+        <h2>Status</h2>
+        <div id="charts"></div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const campaignData = {{ campaigns | tojson | safe }};
+            const chartsContainer = document.getElementById('charts');
+
+            campaignData.forEach(campaign => {
+                // Create a div to hold the chart
+                const chartContainer = document.createElement('div');
+                chartContainer.classList.add('chart-container');
+
+                // Create a canvas element for the chart
+                const canvas = document.createElement('canvas');
+                canvas.id = 'chart_' + campaign.name;
+                chartContainer.appendChild(canvas);
+
+                // Append the chart container to the charts container
+                chartsContainer.appendChild(chartContainer);
+
+                // Create the chart
+                const ctx = canvas.getContext('2d');
+                new Chart(ctx, {
+                    type: 'pie',
+                    data: {
+                        labels: ['Completed', 'Incomplete'],
+                        datasets: [{
+                            label: campaign.name,
+                            data: [campaign.completed, campaign.incomplete],
+                            backgroundColor: ['#4caf50', '#f44336']
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                            },
+                            title: {
+                                display: true,
+                                text: 'Campaign Progress: ' + campaign.name
+                            }
+                        }
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: url('cp-bg.jpg') center center / cover no-repeat
+        }
+        header {
+            background-color: #333;
+            color: #fff;
+            padding: 10px 20px;
+        }
+        nav {
+            background-color: #f4f4f4;
+            padding: 10px;
+        }
+        nav ul {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+        }
+        nav ul li {
+            display: inline;
+            margin-right: 10px;
+        }
+        .container {
+            padding: 20px;
+        }
+        h2 {
+            margin-top: 0;
+        }
+        .chart-container {
+            width: 30%;
+            margin: 0 auto;
+            margin-bottom: 20px;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <header>
+        <h1>Admin Dashboard</h1>
+        <nav>
+            <ul>
+                <li><a href="{{ url_for('dash2') }}">Profile</a></li>
+                <li><a href="{{ url_for('find2') }}">Find</a></li>
+                <li><a>Status</a></li>
+                <li><a href="{{ url_for('logout') }}">Logout</a></li>
+            </ul>
+        </nav>
+    </header>
+   
+
+    <div class="container" id="status">
+        <h2>Status</h2>
+        <div id="charts"></div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const campaignData = {{ campaigns | tojson | safe }};
+            const chartsContainer = document.getElementById('charts');
+
+            campaignData.forEach(campaign => {
+                
+                const chartContainer = document.createElement('div');
+                chartContainer.classList.add('chart-container');
+
+                
+                const canvas = document.createElement('canvas');
+                canvas.id = 'chart_' + campaign.name;
+                chartContainer.appendChild(canvas);
+
+               
+                chartsContainer.appendChild(chartContainer);
+
+                
+                const ctx = canvas.getContext('2d');
+                new Chart(ctx, {
+                    type: 'pie',
+                    data: {
+                        labels: ['Completed', 'Incomplete'],
+                        datasets: [{
+                            label: campaign.name,
+                            data: [campaign.completed, campaign.incomplete],
+                            backgroundColor: ['#4caf50', '#f44336']
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                            },
+                            title: {
+                                display: true,
+                                text: 'Campaign Progress: ' + campaign.name
+                            }
+                        }
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
